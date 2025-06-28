@@ -5,9 +5,10 @@ import {
   HttpResponse,
   HttpBackend,
   HttpHeaders,
+  HttpErrorResponse
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 
 export interface RecordedEntry {
   method: string;
@@ -17,6 +18,8 @@ export interface RecordedEntry {
   response: any;
   status: number;
   timestamp: number;
+  isError?: boolean;
+  errorMessage?: string;
 }
 
 @Injectable()
@@ -33,16 +36,35 @@ export class HistoryRecorderHandler implements HttpHandler {
     return this.mock(req) || this.recordAndHandle(req);
   }
 
-  mock(req: HttpRequest<any>): Observable<HttpEvent<any>> | null {
-    const mockable = this.mockables.find(entry => 
+  fetchMockable(req: HttpRequest<any>): RecordedEntry | null {
+    return this.mockables.find(entry => 
       entry.method === req.method && 
-      entry.url === req.urlWithParams
-    );
+      entry.url === req.urlWithParams) || null;
+  }
+
+  storeMockable(entry: RecordedEntry) {
+    this.history.push(entry);
+  }
+
+  mock(req: HttpRequest<any>): Observable<HttpEvent<any>> | null {
+    const mockable = this.fetchMockable(req);
     if(!mockable){
       return null;
     }
-      console.log('[MockLess] Mocking request:', mockable);
-      return new Observable<HttpEvent<any>>(observer => {
+    
+    return new Observable<HttpEvent<any>>(observer => {
+      if (mockable.isError) {
+        // Replay the error
+        const errorResponse = new HttpErrorResponse({
+          error: mockable.response,
+          status: mockable.status,
+          statusText: mockable.errorMessage || 'Error',
+          headers: new HttpHeaders(mockable.headers),
+          url: mockable.url
+        });
+        observer.error(errorResponse);
+      } else {
+        // Replay the successful response
         observer.next(new HttpResponse({
           body: mockable.response,
           status: mockable.status,
@@ -50,7 +72,8 @@ export class HistoryRecorderHandler implements HttpHandler {
           statusText: 'OK'
         }));
         observer.complete();
-      });
+      }
+    });
   }
 
   recordAndHandle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
@@ -68,9 +91,27 @@ export class HistoryRecorderHandler implements HttpHandler {
         if (event instanceof HttpResponse) {
           entry.response = event.body;
           entry.status = event.status;
-          this.history.push(entry as RecordedEntry);
+          entry.isError = false;
+          this.storeMockable(entry as RecordedEntry);
         }
-        console.log('[MockLess] Request handled:', this.history);
+      }),
+      catchError(error => {
+        // Record the error
+        if (error instanceof HttpErrorResponse) {
+          entry.response = error.error;
+          entry.status = error.status;
+          entry.isError = true;
+          entry.errorMessage = error.statusText || error.message;
+        } else {
+          entry.response = error.message || 'Unknown error';
+          entry.status = 0;
+          entry.isError = true;
+          entry.errorMessage = 'Network or unknown error';
+        }
+        this.storeMockable(entry as RecordedEntry);
+        
+        // Re-throw the error to maintain the original error flow
+        return throwError(() => error);
       })
     );
   }
@@ -97,7 +138,6 @@ let handlerInstance: HistoryRecorderHandler | null = null;
 
 export function mockHttpHandlerFactory(httpClient: HttpBackend): HttpHandler {
   if (!handlerInstance) {
-    console.log('[MockLess] Creating handler instance');
     handlerInstance = new HistoryRecorderHandler(httpClient);
   }
   return handlerInstance;
@@ -119,4 +159,6 @@ export interface RecordedEntry {
   response: any;
   status: number;
   timestamp: number;
+  isError?: boolean;
+  errorMessage?: string;
 }
