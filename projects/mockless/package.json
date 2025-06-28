@@ -1,9 +1,17 @@
 {
-  "name": "mockless",
-  "version": "0.0.1",
+  "name": "@mentorspok/mockless",
+  "version": "0.1.2",
+  "author": "Vinayak Joshi",
+  "description": "Angular library to record and mock HTTP traffic dynamically.",
+  "keywords": ["angular", "mock", "http", "testing", "interceptor"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MentorSpock/mockless.git"
+  },
   "peerDependencies": {
-    "@angular/common": "^16.2.0",
-    "@angular/core": "^16.2.0"
+    "@angular/common": "^16.2.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "@angular/core": "^16.2.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
