@@ -5,7 +5,6 @@ import {
   HttpResponse,
   HttpBackend,
   HttpHeaders,
-  HttpClient
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
@@ -23,14 +22,39 @@ export interface RecordedEntry {
 @Injectable()
 export class HistoryRecorderHandler implements HttpHandler {
   private history: RecordedEntry[] = [];
-
+  private mockables: RecordedEntry[] = [];
   constructor(readonly httpClient: HttpBackend) {
   }
 
   handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
-    console.log('[MockLess] Handling request:', req.method, req.urlWithParams);
-    const cloned = req.clone();
+    if(localStorage.getItem('mockless.enable') !== 'true') {
+      return this.httpClient.handle(req);
+    }
+    return this.mock(req) || this.recordAndHandle(req);
+  }
 
+  mock(req: HttpRequest<any>): Observable<HttpEvent<any>> | null {
+    const mockable = this.mockables.find(entry => 
+      entry.method === req.method && 
+      entry.url === req.urlWithParams
+    );
+    if(!mockable){
+      return null;
+    }
+      console.log('[MockLess] Mocking request:', mockable);
+      return new Observable<HttpEvent<any>>(observer => {
+        observer.next(new HttpResponse({
+          body: mockable.response,
+          status: mockable.status,
+          headers: new HttpHeaders(mockable.headers),
+          statusText: 'OK'
+        }));
+        observer.complete();
+      });
+  }
+
+  recordAndHandle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
+    const cloned = req.clone();
     const entry: Partial<RecordedEntry> = {
       method: cloned.method,
       url: cloned.urlWithParams,
