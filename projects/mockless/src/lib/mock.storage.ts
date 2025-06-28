@@ -18,11 +18,22 @@ export class MockStorage {
         );
     }
 
-    storeMockable(entry: Record) {
+    pushToHistory(entry: Record) {
         if(localStorage.getItem('mockless.enable') !== 'true') {
             return;
         }
         this.history.push(entry);
+    }
+
+    storeMockable(entry: Record) {
+        const existingIndex = this.mockables.findIndex(
+            e => e.method === entry.method && e.url === entry.url
+        );
+        if (existingIndex !== -1) {
+            this.mockables[existingIndex] = entry;
+            return;
+        }
+        this.mockables.push(entry);
     }
 
     getHistory(): Record[] {

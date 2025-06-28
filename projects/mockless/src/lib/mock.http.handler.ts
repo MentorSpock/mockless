@@ -69,7 +69,7 @@ export class HistoryRecorderHandler implements HttpHandler {
           entry.response = event.body;
           entry.status = event.status;
           entry.isError = false;
-          this.mockStore.storeMockable(entry as Record);
+          this.mockStore.pushToHistory(entry as Record);
         }
       }),
       catchError(error => {
@@ -85,7 +85,7 @@ export class HistoryRecorderHandler implements HttpHandler {
           entry.isError = true;
           entry.errorMessage = 'Network or unknown error';
         }
-        this.mockStore.storeMockable(entry as Record);
+        this.mockStore.pushToHistory(entry as Record);
         
         // Re-throw the error to maintain the original error flow
         return throwError(() => error);
