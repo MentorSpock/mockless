@@ -9,45 +9,22 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Record } from './record.entity';
+import { getMockStorage } from './mock.storage';
 
-export interface RecordedEntry {
-  method: string;
-  url: string;
-  headers: { [key: string]: string };
-  body: any;
-  response: any;
-  status: number;
-  timestamp: number;
-  isError?: boolean;
-  errorMessage?: string;
-}
 
 @Injectable()
 export class HistoryRecorderHandler implements HttpHandler {
-  private history: RecordedEntry[] = [];
-  private mockables: RecordedEntry[] = [];
+  private mockStore = getMockStorage();
   constructor(readonly httpClient: HttpBackend) {
   }
 
   handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
-    if(localStorage.getItem('mockless.enable') !== 'true') {
-      return this.httpClient.handle(req);
-    }
     return this.mock(req) || this.recordAndHandle(req);
   }
 
-  fetchMockable(req: HttpRequest<any>): RecordedEntry | null {
-    return this.mockables.find(entry => 
-      entry.method === req.method && 
-      entry.url === req.urlWithParams) || null;
-  }
-
-  storeMockable(entry: RecordedEntry) {
-    this.history.push(entry);
-  }
-
   mock(req: HttpRequest<any>): Observable<HttpEvent<any>> | null {
-    const mockable = this.fetchMockable(req);
+    const mockable = this.mockStore.fetchMockable(req);
     if(!mockable){
       return null;
     }
@@ -78,7 +55,7 @@ export class HistoryRecorderHandler implements HttpHandler {
 
   recordAndHandle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
     const cloned = req.clone();
-    const entry: Partial<RecordedEntry> = {
+    const entry: Partial<Record> = {
       method: cloned.method,
       url: cloned.urlWithParams,
       headers: this.headersToObject(cloned.headers),
@@ -92,7 +69,7 @@ export class HistoryRecorderHandler implements HttpHandler {
           entry.response = event.body;
           entry.status = event.status;
           entry.isError = false;
-          this.storeMockable(entry as RecordedEntry);
+          this.mockStore.storeMockable(entry as Record);
         }
       }),
       catchError(error => {
@@ -108,20 +85,12 @@ export class HistoryRecorderHandler implements HttpHandler {
           entry.isError = true;
           entry.errorMessage = 'Network or unknown error';
         }
-        this.storeMockable(entry as RecordedEntry);
+        this.mockStore.storeMockable(entry as Record);
         
         // Re-throw the error to maintain the original error flow
         return throwError(() => error);
       })
     );
-  }
-
-  getHistory(): RecordedEntry[] {
-    return [...this.history].reverse();
-  }
-
-  clearHistory() {
-    this.history = [];
   }
 
   private headersToObject(headers: HttpHeaders): { [key: string]: string } {
@@ -141,24 +110,4 @@ export function mockHttpHandlerFactory(httpClient: HttpBackend): HttpHandler {
     handlerInstance = new HistoryRecorderHandler(httpClient);
   }
   return handlerInstance;
-}
-
-export function getRecordedHistory(): RecordedEntry[] {
-  return handlerInstance?.getHistory() ?? [];
-}
-
-export function clearRecordedHistory() {
-  handlerInstance?.clearHistory();
-}
-
-export interface RecordedEntry {
-  method: string;
-  url: string;
-  headers: { [key: string]: string };
-  body: any;
-  response: any;
-  status: number;
-  timestamp: number;
-  isError?: boolean;
-  errorMessage?: string;
 }
