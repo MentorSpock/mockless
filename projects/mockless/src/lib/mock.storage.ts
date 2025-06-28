@@ -25,6 +25,15 @@ export class MockStorage {
         this.history.push(entry);
     }
 
+    removeMockable(entry: Record) {
+        const existingIndex = this.mockables.findIndex(
+            e => e.method === entry.method && e.url === entry.url
+        );
+        if (existingIndex !== -1) {
+            this.mockables.splice(existingIndex, 1);
+        }
+    }
+
     storeMockable(entry: Record) {
         const existingIndex = this.mockables.findIndex(
             e => e.method === entry.method && e.url === entry.url
@@ -52,12 +61,4 @@ export function getMockStorage(): MockStorage {
         mockStore = new MockStorage();
     }
     return mockStore;
-}
-
-export function getRecordedHistory(): Record[] {
-  return mockStore?.getHistory() ?? [];
-}
-
-export function clearRecordedHistory() {
-  mockStore?.clearHistory();
 }
