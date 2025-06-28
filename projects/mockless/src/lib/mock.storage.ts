@@ -5,6 +5,13 @@ export class MockStorage {
     private mockables: Record[] = [];
     private history: Record[] = [];
 
+    constructor() {
+        const storedMockables = localStorage.getItem('mockless.mockables');
+        if (storedMockables) {
+            this.mockables = JSON.parse(storedMockables);
+        }
+    }
+
     fetchMockable(req: HttpRequest<any>): Record | null {
         if(localStorage.getItem('mockless.enable') !== 'true') {
             return null;
@@ -35,6 +42,15 @@ export class MockStorage {
     }
 
     storeMockable(entry: Record) {
+        this.updateMockable(entry);
+        this.storeMockables();
+    }
+
+    private storeMockables() {
+        localStorage.setItem('mockless.mockables', JSON.stringify(this.mockables));
+    }
+
+    private updateMockable(entry: Record){
         const existingIndex = this.mockables.findIndex(
             e => e.method === entry.method && e.url === entry.url
         );
