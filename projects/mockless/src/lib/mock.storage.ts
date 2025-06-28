@@ -1,15 +1,50 @@
 import { HttpRequest } from '@angular/common/http';
 import { Record } from './record.entity';
 
+type historyAdded = (data: Record) => void;
+type mockablesChanged = (data: Record[]) => void;
+
 export class MockStorage {
     private mockables: Record[] = [];
     private history: Record[] = [];
+    private readonly channel : BroadcastChannel = new BroadcastChannel('mockless-sync');
+    private historySubscribers: historyAdded[] = [];
+    private mockablesSubscribers: mockablesChanged[] = [];
 
     constructor() {
         const storedMockables = localStorage.getItem('mockless.mockables');
-        if (storedMockables) {
-            this.mockables = JSON.parse(storedMockables);
+        if (!storedMockables) {
+            return;
         }
+        this.mockables = JSON.parse(storedMockables);
+        this.channel.onmessage = this.handleMessage.bind(this);
+    }
+
+    private handleMessage(event: MessageEvent) {
+        console.log('Received message:', event.data, "with history subscribers length:", this.historySubscribers.length, "and mockablesSubscribers length:", this.mockablesSubscribers.length);
+        if (event.data.type === 'history') {
+            this.history.push(event.data.entry);
+            this.historySubscribers.forEach(subscriber => subscriber(event.data.entry));
+        } else if (event.data.type === 'mockables') {
+            this.mockables = event.data.mockables;
+            this.mockablesSubscribers.forEach(subscriber => subscriber(this.mockables));
+        }
+    }
+
+    public onHistoryAdd(callback: historyAdded) {
+        this.historySubscribers.push(callback);
+    }
+
+    public onMockablesChange(callback: mockablesChanged) {
+        this.mockablesSubscribers.push(callback);
+    }
+
+    getMockables(): Record[] {
+        if(localStorage.getItem('mockless.enable') !== 'true') {
+            return [];
+        }
+        console.debug('Returning mockables', this.mockables);
+        return [...this.mockables];
     }
 
     fetchMockable(req: HttpRequest<any>): Record | null {
@@ -29,6 +64,11 @@ export class MockStorage {
         if(localStorage.getItem('mockless.enable') !== 'true') {
             return;
         }
+        this.channel.postMessage({
+            type: 'history',
+            entry: entry
+        });
+        this.historySubscribers.forEach(subscriber => subscriber(entry));
         this.history.push(entry);
     }
 
@@ -39,6 +79,7 @@ export class MockStorage {
         if (existingIndex !== -1) {
             this.mockables.splice(existingIndex, 1);
         }
+        this.storeMockables();
     }
 
     storeMockable(entry: Record) {
@@ -48,6 +89,11 @@ export class MockStorage {
 
     private storeMockables() {
         localStorage.setItem('mockless.mockables', JSON.stringify(this.mockables));
+        this.channel.postMessage({
+            type: 'mockables',
+            mockables: this.mockables
+        });
+        this.mockablesSubscribers.forEach(subscriber => subscriber(this.mockables));
     }
 
     private updateMockable(entry: Record){

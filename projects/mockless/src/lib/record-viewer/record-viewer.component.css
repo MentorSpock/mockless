@@ -1,0 +1,73 @@
+.viewer-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  font-family: system-ui, sans-serif;
+}
+
+.mock-entry {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+}
+
+.mock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mock-header .url {
+  flex-grow: 1;
+  margin-left: 12px;
+  color: #555;
+  font-size: 14px;
+  overflow-wrap: break-word;
+}
+
+button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+textarea.json-editor {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 14px;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #fefefe;
+}
+
+.editor-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.editor-actions button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.editor-actions button:hover {
+  background-color: #0056b3;
+}

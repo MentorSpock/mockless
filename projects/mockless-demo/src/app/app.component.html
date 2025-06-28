@@ -1,44 +1,6 @@
-<div class="container">
-  <h2>MockLess API Tester</h2>
+<nav style="margin-bottom: 20px;">
+  <a routerLink="/">Home</a> |
+  <a routerLink="/mockless-records">Mockless Records</a>
+</nav>
 
-  <div class="form-row">
-    <label>HTTP Method:</label>
-    <select [(ngModel)]="method">
-      <option>GET</option>
-      <option>POST</option>
-      <option>PUT</option>
-      <option>DELETE</option>
-      <option>PATCH</option>
-    </select>
-  </div>
-
-  <div class="form-row">
-    <label>URL:</label>
-    <input [(ngModel)]="url" placeholder="/api/test" />
-  </div>
-
-  <div class="form-row">
-  <label>Headers:</label>
-  <div class="headers-table">
-    <div class="header-row" *ngFor="let h of headers; let i = index">
-      <input [(ngModel)]="h.key" placeholder="Key" />
-      <input [(ngModel)]="h.value" placeholder="Value" />
-      <button class="remove-btn" (click)="removeHeader(i)">×</button>
-    </div>
-    <button class="add-btn" (click)="addHeader()">+ Add Header</button>
-  </div>
-</div>
-
-
-  <div class="form-row">
-    <label>Body (JSON):</label>
-    <textarea [(ngModel)]="body" rows="6" placeholder='{ "name": "Test" }'></textarea>
-  </div>
-
-  <div class="form-row">
-    <button (click)="sendRequest()">Send Request</button>
-  </div>
-
-  <h3>Response:</h3>
-  <pre class="response">{{ result | json }}</pre>
-</div>
+<router-outlet></router-outlet>

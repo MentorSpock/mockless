@@ -1,0 +1,36 @@
+<div class="viewer-container">
+
+
+
+  <h2>History</h2>
+  <div *ngFor="let record of history" class="mock-entry">
+    <div class="mock-header">
+      <strong>{{ record.method }}</strong>
+      <span class="url">{{ record.url }}</span>
+      <button (click)="addMockable(record)">💾</button>
+    </div>
+    <pre class="json">{{ record | json }}</pre>
+  </div>
+
+  <h2>Stored Mockables</h2>
+
+  <div *ngIf="mockables.length === 0">
+    <p>No mockable requests stored yet.</p>
+  </div>
+
+  <div *ngFor="let record of mockables" class="mock-entry">
+  <div class="mock-header">
+    <strong>{{ record.method }}</strong>
+    <span class="url">{{ record.url }}</span>
+    <button (click)="remove(record)">🗑️</button>
+  </div>
+  <textarea #textArea
+    class="json-editor"
+    rows="10">
+    {{ record | json }}
+  </textarea>
+  <div class="editor-actions">
+    <button (click)="updateMockable(record, textArea.value)">💾 Save</button>
+  </div>
+</div>
+</div>
