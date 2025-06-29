@@ -46,4 +46,10 @@ export class RecordViewerComponent implements OnInit {
       alert('Failed to update mockable: ' + e);
     }
   }
+
+  toggleEnabled(event: any) {
+    const enabled = event.target.checked;
+    this.storage.enableMockless(enabled);
+    this.cdr.detectChanges(); // Trigger change detection to update the view
+  }
 }

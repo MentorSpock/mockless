@@ -10,6 +10,7 @@ export class MockStorage {
     private readonly channel : BroadcastChannel = new BroadcastChannel('mockless-sync');
     private historySubscribers: historyAdded[] = [];
     private mockablesSubscribers: mockablesChanged[] = [];
+    private enabled: boolean = localStorage.getItem('mockless.enable') === 'true';
 
     constructor() {
         const storedMockables = localStorage.getItem('mockless.mockables');
@@ -28,6 +29,9 @@ export class MockStorage {
         } else if (event.data.type === 'mockables') {
             this.mockables = event.data.mockables;
             this.mockablesSubscribers.forEach(subscriber => subscriber(this.mockables));
+        } else if (event.data.type === 'enable') {
+            this.enabled = event.data.enabled;
+            console.debug('Mockless enabled:', this.enabled);
         }
     }
 
@@ -40,7 +44,7 @@ export class MockStorage {
     }
 
     getMockables(): Record[] {
-        if(localStorage.getItem('mockless.enable') !== 'true') {
+        if(!this.enabled) {
             return [];
         }
         console.debug('Returning mockables', this.mockables);
@@ -48,7 +52,7 @@ export class MockStorage {
     }
 
     fetchMockable(req: HttpRequest<any>): Record | null {
-        if(localStorage.getItem('mockless.enable') !== 'true') {
+        if(!this.enabled) {
             return null;
         }
         return (
@@ -61,7 +65,7 @@ export class MockStorage {
     }
 
     pushToHistory(entry: Record) {
-        if(localStorage.getItem('mockless.enable') !== 'true') {
+        if(!this.enabled) {
             return;
         }
         this.channel.postMessage({
@@ -114,6 +118,19 @@ export class MockStorage {
     clearHistory() {
       this.history = [];
     }
+
+    enableMockless(enable: boolean) {
+        localStorage.setItem('mockless.enable', `${enable}`);
+        this.channel.postMessage({
+            type: 'enable',
+            enabled: enable
+        });
+    }
+
+    isEnabled(): boolean {
+        return this.enabled;
+    }
+
 }
 
 let mockStore: MockStorage | null = null;

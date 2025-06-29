@@ -1,8 +1,15 @@
 <div class="viewer-container">
-
-
+    <!-- Enable Mockless -->
+    <label>
+        <input type="checkbox" [checked]="storage.isEnabled()" (change)="toggleEnabled($event)" />
+        Enable Mockless
+    </label>
 
   <h2>History</h2>
+
+  <div *ngIf="history.length === 0">
+    <p>No requests made yet.</p>
+  </div>
   <div *ngFor="let record of history" class="mock-entry">
     <div class="mock-header">
       <strong>{{ record.method }}</strong>
