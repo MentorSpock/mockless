@@ -3,21 +3,21 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { HttpClientModule, HTTP_INTERCEPTORS, HttpHandler, HttpBackend } from '@angular/common/http';
-import { MockHttpHandlerFactory, MocklessModule, RecordViewerComponent } from 'mockless';
+import { MockHttpHandlerFactory, MocklessModule, MocklessPanelComponent } from 'mockless';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { ApiMakerComponent } from './api-maker/api-maker.component';
+import { DemoComponent } from './demo/demo.component';
 
 
 const routes: Routes = [
-  { path: 'mockless-records', component: RecordViewerComponent },
-  { path: '', component: ApiMakerComponent },
+  { path: 'mockless', component: MocklessPanelComponent },
+  { path: '', component: DemoComponent }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
-    ApiMakerComponent
+    DemoComponent
   ],
   imports: [
     BrowserModule,

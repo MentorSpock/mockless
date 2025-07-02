@@ -1,0 +1,25 @@
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+
+  button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &.active {
+      background: #007acc;
+      color: white;
+      border-color: #007acc;
+    }
+  }
+}
+
+.panel-container {
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}

@@ -15,16 +15,12 @@ export class RecordViewerComponent implements OnInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.storage.onHistoryAdd((record: Record) => {
-      console.log('History record added:', record);
-      this.history.push(record);
-      this.cdr.detectChanges(); // Trigger change detection to update the view
-    });
-    this.storage.onMockablesChange(() => {
+    this.storage.onReload(() => {
       this.mockables = this.storage.getMockables();
-      console.log('Mockables updated:', this.mockables);
+      this.history = this.storage.getHistory();
       this.cdr.detectChanges(); // Trigger change detection to update the view
     });
+    this.history = this.storage.getHistory();
     this.mockables = this.storage.getMockables();
   }
 
@@ -48,8 +44,7 @@ export class RecordViewerComponent implements OnInit {
   }
 
   toggleEnabled(event: any) {
-    const enabled = event.target.checked;
-    this.storage.enableMockless(enabled);
+    this.storage.enableMockless(event.target.checked);
     this.cdr.detectChanges(); // Trigger change detection to update the view
   }
 }

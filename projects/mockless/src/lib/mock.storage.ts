@@ -1,53 +1,50 @@
 import { HttpRequest } from '@angular/common/http';
 import { Record } from './record.entity';
 
-type historyAdded = (data: Record) => void;
-type mockablesChanged = (data: Record[]) => void;
+type reloadCallback = () => void;
+type MessageType = 'history' | 'mockables' | 'enable';
 
 export class MockStorage {
     private mockables: Record[] = [];
     private history: Record[] = [];
     private readonly channel : BroadcastChannel = new BroadcastChannel('mockless-sync');
-    private historySubscribers: historyAdded[] = [];
-    private mockablesSubscribers: mockablesChanged[] = [];
+    private reloadCallback: reloadCallback = ()=>{};
     private enabled: boolean = localStorage.getItem('mockless.enable') === 'true';
 
     constructor() {
+        this.reloadMockables();
+        this.channel.onmessage = this.handleMessage.bind(this);
+    }
+
+    private reloadMockables() {
         const storedMockables = localStorage.getItem('mockless.mockables');
         if (!storedMockables) {
             return;
         }
         this.mockables = JSON.parse(storedMockables);
-        this.channel.onmessage = this.handleMessage.bind(this);
     }
 
     private handleMessage(event: MessageEvent) {
-        console.log('Received message:', event.data, "with history subscribers length:", this.historySubscribers.length, "and mockablesSubscribers length:", this.mockablesSubscribers.length);
-        if (event.data.type === 'history') {
+        console.debug('Received message:', event.data);
+        const type: MessageType = event.data.type;
+        if (type === 'history') {
             this.history.push(event.data.entry);
-            this.historySubscribers.forEach(subscriber => subscriber(event.data.entry));
-        } else if (event.data.type === 'mockables') {
+        } else if (type === 'mockables' ) {
             this.mockables = event.data.mockables;
-            this.mockablesSubscribers.forEach(subscriber => subscriber(this.mockables));
-        } else if (event.data.type === 'enable') {
+        } else if (type === 'enable') {
             this.enabled = event.data.enabled;
-            console.debug('Mockless enabled:', this.enabled);
         }
+        this.reloadCallback();
     }
 
-    public onHistoryAdd(callback: historyAdded) {
-        this.historySubscribers.push(callback);
-    }
-
-    public onMockablesChange(callback: mockablesChanged) {
-        this.mockablesSubscribers.push(callback);
+    public onReload(callback: reloadCallback) {
+        this.reloadCallback = callback;
     }
 
     getMockables(): Record[] {
         if(!this.enabled) {
             return [];
         }
-        console.debug('Returning mockables', this.mockables);
         return [...this.mockables];
     }
 
@@ -68,12 +65,10 @@ export class MockStorage {
         if(!this.enabled) {
             return;
         }
-        this.channel.postMessage({
+        this.publish({
             type: 'history',
             entry: entry
         });
-        this.historySubscribers.forEach(subscriber => subscriber(entry));
-        this.history.push(entry);
     }
 
     removeMockable(entry: Record) {
@@ -93,11 +88,10 @@ export class MockStorage {
 
     private storeMockables() {
         localStorage.setItem('mockless.mockables', JSON.stringify(this.mockables));
-        this.channel.postMessage({
+        this.publish({
             type: 'mockables',
             mockables: this.mockables
         });
-        this.mockablesSubscribers.forEach(subscriber => subscriber(this.mockables));
     }
 
     private updateMockable(entry: Record){
@@ -121,10 +115,20 @@ export class MockStorage {
 
     enableMockless(enable: boolean) {
         localStorage.setItem('mockless.enable', `${enable}`);
-        this.channel.postMessage({
+        this.publish({
             type: 'enable',
             enabled: enable
         });
+    }
+
+    private publish(message: {
+        type: MessageType;
+        mockables?: Record[];
+        entry?: Record;
+        enabled?: boolean;
+    }) {
+        this.channel.postMessage(message);
+        this.handleMessage({ data: message } as MessageEvent);
     }
 
     isEnabled(): boolean {

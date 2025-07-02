@@ -17,7 +17,7 @@ An Angular library that provides intelligent HTTP request recording and replay c
 ### Installation
 
 ```bash
-npm install mockless
+npm install @mentorspok/mockless
 ```
 
 ### Setup
@@ -25,7 +25,7 @@ npm install mockless
 1. **Configure your app module:**
 
 ```typescript
-import { MockHttpHandlerFactory } from 'mockless';
+import { MockHttpHandlerFactory } from '@mentorspok/mockless';
 
 @NgModule({
   providers: [
@@ -53,7 +53,7 @@ localStorage.setItem('mockless.enable', 'false');
 Before using the record viewer component, make sure to import the `MocklessModule` in your app module:
 
 ```typescript
-import { MocklessModule } from 'mockless';
+import { MocklessModule } from '@mentorspok/mockless';
 
 @NgModule({
     imports: [
@@ -67,19 +67,15 @@ export class AppModule { }
 To provide access to the record viewer via a route, add it to your routing configuration:
 
 ```typescript
-import { RecordViewerComponent } from 'mockless';
+import { MocklessPanelComponent } from '@mentorspok/mockless';
 
 const routes: Routes = [
     // ...other routes
-    { path: 'mockless', component: RecordViewerComponent }
+    { path: 'mockless', component: MocklessPanelComponent }
 ];
 ```
 
 Now you can navigate to `/mockless` in your app to view and manage recorded requests.
-
-```html
-<lib-record-viewer></lib-record-viewer>
-```
 
 ## How It Works
 
