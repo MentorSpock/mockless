@@ -2,7 +2,16 @@
 
 An Angular library that provides intelligent HTTP request recording and replay capabilities for seamless API mocking during development and testing.
 
-## Features
+
+With Mockless, you can develop the frontend without needing the backend up and running.
+
+Mock More with less
+1. Code
+2. Servers
+3. Hassel
+4. Followups
+
+# Features
 
 - **Automatic HTTP Recording**: Intercepts and records all outgoing HTTP requests and their responses
 - **Request Replay**: Automatically replay recorded responses for matching requests
@@ -12,17 +21,40 @@ An Angular library that provides intelligent HTTP request recording and replay c
 - **Toggle Mode**: Easy enable/disable functionality via localStorage
 - **Zero Configuration**: Works out of the box with minimal setup
 
-## Quick Start
-
-### Installation
+# Installation
 
 ```bash
 npm install @mentorspok/mockless
 ```
 
-### Setup
+# Setup
 
-1. **Configure your app module:**
+## 1. **Override the Http Handler:**
+
+### For Angular 20
+
+Import the required fields in the ```app.Config.ts```
+```typescript
+import { HttpBackend, HttpHandler } from '@angular/common/http';
+import { MockHttpHandlerFactory } from '@mentorspok/mockless';
+```
+
+Add the Mockless Provider for the HttpHandler
+```typescript
+export const appConfig: ApplicationConfig = {
+  providers: [
+    ... // Existing providers
+    ...
+    {
+      provide: HttpHandler,
+      useFactory: MockHttpHandlerFactory,
+      deps: [HttpBackend]
+    }
+  ]
+};
+```
+
+### For earlier system
 
 ```typescript
 import { MockHttpHandlerFactory } from '@mentorspok/mockless';
@@ -39,40 +71,51 @@ import { MockHttpHandlerFactory } from '@mentorspok/mockless';
 export class AppModule { }
 ```
 
-2. **Enable recording mode:**
-
+## 2. **Add Mockless panel for control:**
+### For Angular 20
+Update ```app.routes.ts``` Add the Mockless component to "mockless" or any route you want to use, to add the MocklessPanel
 ```typescript
-// Enable mockless
-localStorage.setItem('mockless.enable', 'true');
-
-// Disable mockless (use real APIs)
-localStorage.setItem('mockless.enable', 'false');
-```
-
-3. **View recorded requests:**
-Before using the record viewer component, make sure to import the `MocklessModule` in your app module:
-
-```typescript
-import { MocklessModule } from '@mentorspok/mockless';
-
-@NgModule({
-    imports: [
-        // ...other imports
-        MocklessModule
-    ]
-})
-export class AppModule { }
-```
-
-To provide access to the record viewer via a route, add it to your routing configuration:
-
-```typescript
+import { Routes } from '@angular/router';
 import { MocklessPanelComponent } from '@mentorspok/mockless';
 
-const routes: Routes = [
-    // ...other routes
+export const routes: Routes = [
+    ... // existing routes
     { path: 'mockless', component: MocklessPanelComponent }
 ];
+```
+### For earlier system
+
+Update ```app.module.ts``` Add the Mockless component to "mockless" or any route you want to use, to add the MocklessPanel
+Remember to add MocklessModule to the module imports
+```typescript
+import { Routes } from '@angular/router';
+import { MockHttpHandlerFactory, MocklessModule, MocklessPanelComponent } from 'mockless';
+
+export const routes: Routes = [
+    ... // existing routes
+    { path: 'mockless', component: MocklessPanelComponent }
+];
+```
+
+
+```typescript
+@NgModule({
+  declarations: [
+    ... // existing declarations
+  ],
+  imports: [
+    ... // existing imports
+    MocklessModule // <- add this.
+  ],
+  providers: [
+    {
+      provide: HttpHandler,
+      useFactory: MockHttpHandlerFactory,
+      deps: [HttpBackend]
+    }
+  ],
+  bootstrap: [AppComponent]
+})
 ```
 
 Now you can navigate to `/mockless` in your app to view and manage recorded requests.
@@ -81,20 +124,4 @@ Now you can navigate to `/mockless` in your app to view and manage recorded requ
 
 1. **Recording Phase**: Make HTTP requests normally - Mockless records all requests and responses
 2. **Replay Phase**: Subsequent identical requests return the recorded responses automatically
-3. **Management**: Use the record viewer to inspect, edit, or delete recorded mocks
-
-## Development
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.16.
-
-### Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-### Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+3. **Management**: Use the record viewer inspect, edit, or delete recorded mocks
