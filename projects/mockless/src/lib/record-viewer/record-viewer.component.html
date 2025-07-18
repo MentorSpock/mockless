@@ -10,14 +10,16 @@
   <div *ngIf="history.length === 0">
     <p>No requests made yet.</p>
   </div>
-  <div *ngFor="let record of history" class="mock-entry">
-    <div class="mock-header">
-      <strong>{{ record.method }}</strong>
-      <span class="url">{{ record.url }}</span>
-      <button (click)="addMockable(record)">💾</button>
-    </div>
-    <pre class="json">{{ record | json }}</pre>
-  </div>
+  
+  <lib-api 
+    *ngFor="let record of history" 
+    [record]="record"
+    [showActions]="true"
+    actionButtonText="💾"
+    actionButtonTitle="Add to Mockables"
+    [showEditor]="false"
+    (actionClick)="addMockable($event)">
+  </lib-api>
 
   <h2>Stored Mockables</h2>
 
@@ -25,19 +27,15 @@
     <p>No mockable requests stored yet.</p>
   </div>
 
-  <div *ngFor="let record of mockables" class="mock-entry">
-  <div class="mock-header">
-    <strong>{{ record.method }}</strong>
-    <span class="url">{{ record.url }}</span>
-    <button (click)="remove(record)">🗑️</button>
-  </div>
-  <textarea #textArea
-    class="json-editor"
-    rows="10">
-    {{ record | json }}
-  </textarea>
-  <div class="editor-actions">
-    <button (click)="updateMockable(record, textArea.value)">💾 Save</button>
-  </div>
-</div>
+  <lib-api 
+    *ngFor="let record of mockables" 
+    [record]="record"
+    [showActions]="true"
+    actionButtonText="🗑️"
+    actionButtonTitle="Remove Mockable"
+    [showEditor]="true"
+    [editorRows]="10"
+    (actionClick)="remove($event)"
+    (updateRecord)="updateMockable($event.record, $event.updatedValue)">
+  </lib-api>
 </div>

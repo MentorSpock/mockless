@@ -1,0 +1,26 @@
+<div class="mock-entry">
+  <div class="mock-header">
+    <strong>{{ record.method }}</strong>
+    <span class="url">{{ record.url }}</span>
+    <button 
+      *ngIf="showActions" 
+      (click)="onActionClick()" 
+      [title]="actionButtonTitle">
+      {{ actionButtonText }}
+    </button>
+  </div>
+
+  <!-- Show JSON display if editor is not enabled -->
+  <pre *ngIf="!showEditor" class="json">{{ record | json }}</pre>
+
+  <!-- Show editor if enabled -->
+  <div *ngIf="showEditor">
+    <textarea 
+      #textArea
+      class="json-editor"
+      [rows]="editorRows">{{ record | json }}</textarea>
+    <div class="editor-actions">
+      <button (click)="onUpdateRecord(textArea)">💾 Save</button>
+    </div>
+  </div>
+</div>

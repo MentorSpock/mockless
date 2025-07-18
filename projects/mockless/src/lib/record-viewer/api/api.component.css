@@ -1,0 +1,91 @@
+.mock-entry {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fafafa;
+}
+
+.mock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.mock-header strong {
+  color: #007acc;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background-color: #e6f3ff;
+}
+
+.url {
+  flex: 1;
+  margin: 0 10px;
+  color: #333;
+  word-break: break-all;
+}
+
+.mock-header button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.mock-header button:hover {
+  background-color: #f0f0f0;
+  border-color: #bbb;
+}
+
+.json {
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 10px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #333;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.json-editor {
+  width: 100%;
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #333;
+  resize: vertical;
+}
+
+.editor-actions {
+  margin-top: 5px;
+  text-align: right;
+}
+
+.editor-actions button {
+  background-color: #007acc;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.editor-actions button:hover {
+  background-color: #005a9e;
+}

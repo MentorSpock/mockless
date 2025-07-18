@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MocklessPanelComponent } from './mockless-panel/mockless-panel.component';
 import { FormsModule } from '@angular/forms';
 import { ApiMakerComponent } from './api-maker/api-maker.component';
+import { APIComponent } from './record-viewer/api/api.component';
 
 
 
@@ -11,14 +12,17 @@ import { ApiMakerComponent } from './api-maker/api-maker.component';
   declarations: [
     RecordViewerComponent,
     ApiMakerComponent,
-    MocklessPanelComponent
+    MocklessPanelComponent,
+    APIComponent
   ],
   imports: [
     CommonModule,
     FormsModule
   ],
   exports: [
-    MocklessPanelComponent
+    MocklessPanelComponent,
+    RecordViewerComponent,
+    APIComponent
   ]
 })
 export class MocklessModule { }
