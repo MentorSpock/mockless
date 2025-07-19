@@ -1,26 +1,216 @@
-<div class="mock-entry">
-  <div class="mock-header">
-    <strong>{{ record.method }}</strong>
-    <span class="url">{{ record.url }}</span>
-    <button 
-      *ngIf="showActions" 
-      (click)="onActionClick()" 
-      [title]="actionButtonTitle">
-      {{ actionButtonText }}
-    </button>
+<div class="api-record-card">
+  <!-- Header Section -->
+  <div class="record-header">
+    <div class="method-url-section">
+      <span class="method-badge" [attr.data-method]="record.method">
+        {{ record.method }}
+      </span>
+      <span class="url-display" [title]="record.url">
+        {{ record.url }}
+      </span>
+    </div>
+    
+    <div class="status-actions">
+      <span class="status-indicator" [style.color]="getStatusColor()">
+        {{ getStatusIcon() }} {{ record.status }}
+        <span *ngIf="record.isError" class="error-text">({{ record.errorMessage }})</span>
+      </span>
+      
+      <div class="action-buttons">
+        <button 
+          *ngIf="showActions && !isEditing" 
+          class="action-btn primary"
+          (click)="onActionClick()" 
+          [title]="actionButtonTitle">
+          {{ actionButtonText }}
+        </button>
+        
+        <button 
+          *ngIf="showEditor && !isEditing" 
+          class="action-btn secondary"
+          (click)="startEditing()" 
+          title="Edit Record">
+          ✏️ Edit
+        </button>
+        
+        <button 
+          *ngIf="isEditing" 
+          class="action-btn success"
+          (click)="saveChanges()" 
+          title="Save Changes">
+          💾 Save
+        </button>
+        
+        <button 
+          *ngIf="isEditing" 
+          class="action-btn cancel"
+          (click)="cancelEditing()" 
+          title="Cancel Editing">
+          ❌ Cancel
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- Show JSON display if editor is not enabled -->
-  <pre *ngIf="!showEditor" class="json">{{ record | json }}</pre>
+  <!-- Timestamp -->
+  <div class="timestamp-section">
+    <small class="timestamp">{{ formatTimestamp(record.timestamp) }}</small>
+  </div>
 
-  <!-- Show editor if enabled -->
-  <div *ngIf="showEditor">
-    <textarea 
-      #textArea
-      class="json-editor"
-      [rows]="editorRows">{{ record | json }}</textarea>
-    <div class="editor-actions">
-      <button (click)="onUpdateRecord(textArea)">💾 Save</button>
+  <!-- Detailed Fields -->
+  <div class="record-details">
+    
+    <!-- Basic Info Section -->
+    <div class="detail-section">
+      <div class="section-header">
+        <h4>Request Details</h4>
+      </div>
+      
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Method:</label>
+          <input 
+            *ngIf="isEditing" 
+            type="text" 
+            [(ngModel)]="editableRecord.method" 
+            class="field-input">
+          <span *ngIf="!isEditing" class="field-value">{{ record.method }}</span>
+        </div>
+        
+        <div class="field-group">
+          <label>Status Code:</label>
+          <input 
+            *ngIf="isEditing" 
+            type="number" 
+            [(ngModel)]="editableRecord.status" 
+            class="field-input">
+          <span *ngIf="!isEditing" class="field-value">{{ record.status }}</span>
+        </div>
+        
+        <div class="field-group full-width">
+          <label>URL:</label>
+          <input 
+            *ngIf="isEditing" 
+            type="text" 
+            [(ngModel)]="editableRecord.url" 
+            class="field-input">
+          <span *ngIf="!isEditing" class="field-value url-text">{{ record.url }}</span>
+        </div>
+        
+        <div class="field-group" *ngIf="record.isError">
+          <label>
+            <input 
+              *ngIf="isEditing" 
+              type="checkbox" 
+              [(ngModel)]="editableRecord.isError">
+            Is Error:
+          </label>
+          <span *ngIf="!isEditing" class="field-value">{{ record.isError ? 'Yes' : 'No' }}</span>
+        </div>
+        
+        <div class="field-group full-width" *ngIf="record.isError || isEditing">
+          <label>Error Message:</label>
+          <input 
+            *ngIf="isEditing" 
+            type="text" 
+            [(ngModel)]="editableRecord.errorMessage" 
+            class="field-input">
+          <span *ngIf="!isEditing" class="field-value">{{ record.errorMessage }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Headers Section -->
+    <div class="detail-section" *ngIf="record.headers && getObjectKeys(record.headers).length > 0 || isEditing">
+      <div class="section-header clickable" (click)="toggleSection('headers')">
+        <h4>
+          <span class="expand-icon">{{ expandedSections['headers'] ? '▼' : '▶' }}</span>
+          Headers ({{ getObjectKeys(record.headers || {}).length }})
+        </h4>
+        <button 
+          *ngIf="isEditing" 
+          class="add-btn" 
+          (click)="addHeader(); $event.stopPropagation()" 
+          title="Add Header">
+          ➕
+        </button>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['headers']">
+        <!-- Edit Mode -->
+        <div *ngIf="isEditing" class="headers-edit">
+          <div class="header-row" *ngFor="let key of getObjectKeys(editableRecord.headers); let i = index">
+            <input 
+              type="text" 
+              [(ngModel)]="getObjectKeys(editableRecord.headers)[i]" 
+              placeholder="Header Name" 
+              class="header-key-input">
+            <input 
+              type="text" 
+              [(ngModel)]="editableRecord.headers[key]" 
+              placeholder="Header Value" 
+              class="header-value-input">
+            <button 
+              class="remove-btn" 
+              (click)="removeHeader(key)" 
+              title="Remove Header">
+              ❌
+            </button>
+          </div>
+        </div>
+        
+        <!-- View Mode -->
+        <div *ngIf="!isEditing" class="headers-display">
+          <div class="header-item" *ngFor="let header of getObjectKeys(record.headers); let i = index">
+            <span class="header-name">{{ header }}:</span>
+            <span class="header-value">{{ record.headers[header] }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Body Section -->
+    <div class="detail-section" *ngIf="record.body || isEditing">
+      <div class="section-header clickable" (click)="toggleSection('body')">
+        <h4>
+          <span class="expand-icon">{{ expandedSections['body'] ? '▼' : '▶' }}</span>
+          Request Body
+        </h4>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['body']">
+        <textarea 
+          *ngIf="isEditing" 
+          [(ngModel)]="editableRecord.body" 
+          class="json-textarea"
+          rows="6"
+          placeholder="Request body (JSON or text)">
+        </textarea>
+        
+        <pre *ngIf="!isEditing" class="json-display">{{ formatJson(record.body) }}</pre>
+      </div>
+    </div>
+
+    <!-- Response Section -->
+    <div class="detail-section">
+      <div class="section-header clickable" (click)="toggleSection('response')">
+        <h4>
+          <span class="expand-icon">{{ expandedSections['response'] ? '▼' : '▶' }}</span>
+          Response
+        </h4>
+      </div>
+      
+      <div class="section-content" *ngIf="expandedSections['response']">
+        <textarea 
+          *ngIf="isEditing" 
+          [(ngModel)]="editableRecord.response" 
+          class="json-textarea"
+          rows="8"
+          placeholder="Response body (JSON or text)">
+        </textarea>
+        
+        <pre *ngIf="!isEditing" class="json-display">{{ formatJson(record.response) }}</pre>
+      </div>
     </div>
   </div>
 </div>

@@ -20,9 +20,7 @@ import { APIComponent } from './record-viewer/api/api.component';
     FormsModule
   ],
   exports: [
-    MocklessPanelComponent,
-    RecordViewerComponent,
-    APIComponent
+    MocklessPanelComponent
   ]
 })
 export class MocklessModule { }

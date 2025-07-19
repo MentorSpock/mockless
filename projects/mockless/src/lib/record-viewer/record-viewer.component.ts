@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Record } from '../record.entity'; // adjust path if needed
-import { getMockStorage } from '../mock.storage'; // adjust if using a service
+import { MockStorage } from '../mock.storage'; // adjust if using a service
 
 @Component({
   selector: 'lib-record-viewer',
@@ -8,17 +8,24 @@ import { getMockStorage } from '../mock.storage'; // adjust if using a service
   styleUrls: ['./record-viewer.component.css']
 })
 export class RecordViewerComponent implements OnInit {
-  storage = getMockStorage();
   mockables: Record[] = [];
   history: Record[] = []; // Initialize with an empty record
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private storage: MockStorage) {
+
+  }
+
+  isEnabled(){
+    return this.storage.isEnabled();
+  }
 
   ngOnInit(): void {
     this.storage.onReload(() => {
+      console.debug('Reloading records...');
       this.mockables = this.storage.getMockables();
       this.history = this.storage.getHistory();
-      this.cdr.detectChanges(); // Trigger change detection to update the view
+      console.debug('Mockables:', this.mockables);
+      console.debug('History:', this.history);
     });
     this.history = this.storage.getHistory();
     this.mockables = this.storage.getMockables();
@@ -45,6 +52,5 @@ export class RecordViewerComponent implements OnInit {
 
   toggleEnabled(event: any) {
     this.storage.enableMockless(event.target.checked);
-    this.cdr.detectChanges(); // Trigger change detection to update the view
   }
 }
