@@ -12,7 +12,6 @@ export class APIComponent implements OnInit {
   @Input() actionButtonText: string = '💾';
   @Input() actionButtonTitle: string = 'Action';
   @Input() showEditor: boolean = false;
-  @Input() editorRows: number = 10;
 
   @Output() actionClick = new EventEmitter<Record>();
   @Output() updateRecord = new EventEmitter<{record: Record, updatedValue: string}>();
