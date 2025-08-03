@@ -78,7 +78,7 @@ export class MockStorage {
         );
     }
 
-    pushToHistory(entry: Record) {
+    async pushToHistory(entry: Record) {
         if(!this.enabled) {
             return;
         }

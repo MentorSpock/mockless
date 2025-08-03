@@ -8,5 +8,4 @@ export interface Record {
   status: number;
   timestamp: number;
   isError?: boolean;
-  errorMessage?: string;
 }

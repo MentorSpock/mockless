@@ -32,13 +32,7 @@ export class HistoryRecorderHandler implements HttpHandler {
     return new Observable<HttpEvent<any>>(observer => {
       if (mockable.isError) {
         // Replay the error
-        const errorResponse = new HttpErrorResponse({
-          error: mockable.response,
-          status: mockable.status,
-          statusText: mockable.errorMessage || 'Error',
-          headers: new HttpHeaders(mockable.headers),
-          url: mockable.url
-        });
+        const errorResponse = JSON.parse(mockable.response) as HttpErrorResponse;
         observer.error(errorResponse);
       } else {
         // Replay the successful response
@@ -74,17 +68,8 @@ export class HistoryRecorderHandler implements HttpHandler {
       }),
       catchError(error => {
         // Record the error
-        if (error instanceof HttpErrorResponse) {
-          entry.response = error.error;
-          entry.status = error.status;
-          entry.isError = true;
-          entry.errorMessage = error.statusText || error.message;
-        } else {
-          entry.response = error.message || 'Unknown error';
-          entry.status = 0;
-          entry.isError = true;
-          entry.errorMessage = 'Network or unknown error';
-        }
+        entry.isError = true;
+        entry.response = JSON.stringify(error);
         this.mockStore.pushToHistory(entry as Record);
         
         // Re-throw the error to maintain the original error flow

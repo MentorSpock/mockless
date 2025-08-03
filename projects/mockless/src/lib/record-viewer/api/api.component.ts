@@ -35,7 +35,6 @@ export class APIComponent implements OnInit {
       url: this.record.url,
       status: this.record.status,
       isError: this.record.isError || false,
-      errorMessage: this.record.errorMessage || '',
       headers: this.record.headers ? {...this.record.headers} : {},
       body: this.formatEditableContent(this.record.body),
       response: this.formatEditableContent(this.record.response),
