@@ -23,10 +23,17 @@ start_container() {
     echo "Container '${container_name}' is already running."
 }
 
-start_processes() {
-    docker exec -d mockless ng build mockless --watch
-    docker exec -d mockless ng serve mockless-demo --disable-host-check --host=0.0.0.0
-}
-
 start_container
-start_processes
+
+run_type=$1
+case "$run_type" in
+    bash)
+        docker exec -it mockless bash
+        ;;
+    library)
+        docker exec -it mockless ng build mockless --watch
+        ;;
+    *)
+        docker exec -it mockless ng serve mockless-demo --disable-host-check --host=0.0.0.0
+        ;;
+esac
