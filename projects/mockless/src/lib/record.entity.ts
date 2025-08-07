@@ -6,6 +6,7 @@ export interface Record {
   body: any;
   response: any;
   status: number;
+  statusText?: string;
   timestamp: number;
   isError?: boolean;
 }
