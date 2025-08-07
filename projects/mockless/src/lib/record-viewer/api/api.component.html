@@ -13,7 +13,6 @@
     <div class="status-actions">
       <span class="status-indicator" [style.color]="getStatusColor()">
         {{ getStatusIcon() }} {{ record.status }}
-        <span *ngIf="record.isError" class="error-text">({{ record.errorMessage }})</span>
       </span>
       
       <div class="action-buttons">
@@ -107,16 +106,6 @@
           </label>
           <span *ngIf="!isEditing" class="field-value">{{ record.isError ? 'Yes' : 'No' }}</span>
         </div>
-        
-        <div class="field-group full-width" *ngIf="record.isError || isEditing">
-          <label>Error Message:</label>
-          <input 
-            *ngIf="isEditing" 
-            type="text" 
-            [(ngModel)]="editableRecord.errorMessage" 
-            class="field-input">
-          <span *ngIf="!isEditing" class="field-value">{{ record.errorMessage }}</span>
-        </div>
       </div>
     </div>
 
@@ -166,28 +155,6 @@
             <span class="header-value">{{ record.headers[header] }}</span>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Request Body Section -->
-    <div class="detail-section" *ngIf="record.body || isEditing">
-      <div class="section-header clickable" (click)="toggleSection('body')">
-        <h4>
-          <span class="expand-icon">{{ expandedSections['body'] ? '▼' : '▶' }}</span>
-          Request Body
-        </h4>
-      </div>
-      
-      <div class="section-content" *ngIf="expandedSections['body']">
-        <textarea 
-          *ngIf="isEditing" 
-          [(ngModel)]="editableRecord.body" 
-          class="json-textarea"
-          rows="6"
-          placeholder="Request body (JSON or text)">
-        </textarea>
-        
-        <pre *ngIf="!isEditing" class="json-display">{{ formatJson(record.body) }}</pre>
       </div>
     </div>
 

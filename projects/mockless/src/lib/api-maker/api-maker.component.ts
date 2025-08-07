@@ -41,10 +41,14 @@ sendRequest() {
 
   this.http.request(this.method, this.url, {
     ...options,
-    body: parsedBody
+    body: parsedBody,
+    observe: 'response'
   }).subscribe({
     next: res => this.result = res,
-    error: err => this.result = err
+    error: err => {
+      console.error('Request failed:', err);
+      this.result = err;
+    }
   });
 }
 
