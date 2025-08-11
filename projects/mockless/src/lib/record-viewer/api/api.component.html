@@ -41,7 +41,7 @@
         </button>
         
         <button 
-          *ngIf="isEditing" 
+          *ngIf="isEditing && !editorOnly" 
           class="action-btn cancel"
           (click)="cancelEditing()" 
           title="Cancel Editing">
@@ -52,8 +52,8 @@
   </div>
 
   <!-- Timestamp -->
-  <div class="timestamp-section">
-    <small class="timestamp">{{ formatTimestamp(record.timestamp) }}</small>
+  <div *ngIf="!editorOnly" class="timestamp-section">
+    <small class="timestamp">Created at {{ formatTimestamp(record.timestamp) }}</small>
   </div>
 
   <!-- Detailed Fields -->

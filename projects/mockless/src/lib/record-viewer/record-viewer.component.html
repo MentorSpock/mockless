@@ -1,40 +1,62 @@
 <div class="viewer-container">
-    <!-- Enable Mockless -->
-    <label>
-        <input type="checkbox" [checked]="isEnabled()" (change)="toggleEnabled($event)" />
-        Enable Mockless
-    </label>
-
-  <h2>History</h2>
-
-  <div *ngIf="history.length === 0">
-    <p>No requests made yet.</p>
-  </div>
-  
-  <lib-api 
-    *ngFor="let record of history" 
-    [record]="record"
-    [showActions]="true"
-    actionButtonText="💾"
-    actionButtonTitle="Add to Mockables"
-    [showEditor]="false"
-    (actionClick)="addMockable($event)">
-  </lib-api>
-
-  <h2>Stored Mockables</h2>
-
-  <div *ngIf="mockables.length === 0">
-    <p>No mockable requests stored yet.</p>
+  <!-- Enable Mockless -->
+  <label>
+      <input type="checkbox" [checked]="isEnabled()" (change)="toggleEnabled($event)" />
+      Enable Mockless
+  </label>
+  <div class="toggle-buttons">
+    <button (click)="setView('history')" [class.active]="activeTab === 'history'">History</button>
+    <button (click)="setView('mockables')" [class.active]="activeTab === 'mockables'">Mockables</button>
   </div>
 
-  <lib-api 
-    *ngFor="let record of mockables" 
-    [record]="record"
-    [showActions]="true"
-    actionButtonText="🗑️"
-    actionButtonTitle="Remove Mockable"
-    [showEditor]="true"
-    (actionClick)="remove($event)"
-    (updateRecord)="updateMockable($event.record, $event.updatedValue)">
-  </lib-api>
+  <div *ngIf="activeTab === 'history'">
+    <div *ngIf="history.length === 0">
+      <p>No requests made yet.</p>
+    </div>
+    <lib-api 
+      *ngFor="let record of history" 
+      [record]="record"
+      [showActions]="true"
+      actionButtonText="{{ record.isMocked ? '👁️' : '💾' }}"
+      actionButtonTitle="Add to Mockables"
+      [showEditor]="false"
+      (actionClick)="doHistoryAction(record)">
+    </lib-api>
+  </div>
+
+  <div *ngIf="activeTab === 'mockables'" #mockables_view>
+    <div *ngIf="mockables.length === 0">
+      <p>No mockable requests stored yet.</p>
+    </div>
+    <button (click)="createNewMockable()">➕ Create Mockable</button>
+    <lib-api 
+      *ngFor="let record of mockables; let i = index"
+      [record]="record"
+      id="mockable-{{i}}"
+      [showActions]="true"
+      actionButtonText="🗑️"
+      actionButtonTitle="Remove Mockable"
+      [showEditor]="true"
+      (actionClick)="remove($event)"
+      (updateRecord)="updateMockable($event.record, $event.updatedValue)">
+    </lib-api>
+  </div>
+
+  <!-- Floating Dialog for Creating New Mockable -->
+  <div class="dialog-overlay" *ngIf="showCreateDialog" (click)="closeCreateDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>Create New Mockable</h3>
+        <button class="close-btn" (click)="closeCreateDialog()">✕</button>
+      </div>
+      <div class="dialog-body">
+        <lib-api 
+          [record]="newMockableRecord"
+          [showActions]="false"
+          [editorOnly]="true"
+          (updateRecord)="onCreateMockableSave($event)">
+        </lib-api>
+      </div>
+    </div>
+  </div>
 </div>

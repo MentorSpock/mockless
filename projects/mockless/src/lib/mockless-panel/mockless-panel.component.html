@@ -1,6 +1,6 @@
 <div class="toggle-buttons">
-  <button (click)="setView('recorder')" [class.active]="view === 'recorder'">Record Viewer</button>
-  <button (click)="setView('api-maker')" [class.active]="view === 'api-maker'">API Maker</button>
+  <button (click)="setView('recorder', $event)" [class.active]="view === 'recorder'">Record Viewer</button>
+  <button (click)="setView('api-maker', $event)" [class.active]="view === 'api-maker'">API Maker</button>
 </div>
 
 <div class="panel-container">

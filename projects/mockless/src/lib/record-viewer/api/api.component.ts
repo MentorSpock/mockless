@@ -12,6 +12,7 @@ export class APIComponent implements OnInit {
   @Input() actionButtonText: string = '💾';
   @Input() actionButtonTitle: string = 'Action';
   @Input() showEditor: boolean = false;
+  @Input() editorOnly: boolean = false;
 
   @Output() actionClick = new EventEmitter<Record>();
   @Output() updateRecord = new EventEmitter<{record: Record, updatedValue: string}>();
@@ -27,6 +28,15 @@ export class APIComponent implements OnInit {
 
   ngOnInit() {
     this.initializeEditableRecord();
+    if (this.editorOnly) {
+      this.isEditing = true;
+      // Expand all sections when starting in edit mode
+      this.expandedSections = {
+        headers: true,
+        body: true,
+        response: true
+      };
+    }
   }
 
   initializeEditableRecord() {
