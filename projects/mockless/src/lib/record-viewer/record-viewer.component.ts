@@ -52,7 +52,7 @@ export class RecordViewerComponent implements OnInit {
 
   onCreateMockableSave(event: {record: Record, updatedValue: string}) {
     try {
-      console.log('Creating new mockable with data:', event);
+      console.debug('Creating new mockable with data:', event);
       const updateEntity = JSON.parse(event.updatedValue);
       const newMockable = {...event.record, ...updateEntity, timestamp: Date.now()};
       this.storage.storeMockable(newMockable);
@@ -80,8 +80,8 @@ export class RecordViewerComponent implements OnInit {
       console.debug('Reloading records...');
       this.mockables = this.storage.getMockables();
       this.updateHistory(this.storage.getHistory());
-      console.log('Mockables:', this.mockables);
-      console.log('History:', this.history);
+      console.debug('Mockables:', this.mockables);
+      console.debug('History:', this.history);
   }
 
   updateHistory(history: Record[]){
@@ -108,12 +108,12 @@ export class RecordViewerComponent implements OnInit {
 
   focusOnMockable(entry: Record) {
     const index = this.mockables.findIndex(item => item.url === entry.url && item.method === entry.method);
-    console.log('Focusing on mockable index:', index);
+    console.debug('Focusing on mockable index:', index);
     if (index === -1) {
       return;
     }
     const element = this.mockables_view.nativeElement.querySelector(`#mockable-${index}`);
-    console.log('Focusing on mockable element:', element);
+    console.debug('Focusing on mockable element:', element);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       element.focus();
