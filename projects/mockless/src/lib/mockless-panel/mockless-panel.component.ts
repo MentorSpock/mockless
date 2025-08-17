@@ -31,12 +31,12 @@ export class MocklessPanelComponent implements OnInit {
       if (event?.metaKey || event?.ctrlKey) {
         // Cmd+click or Ctrl+click - open in new tab without changing current view
         window.open(newUrl, '_blank');
-        console.log('Opened new tab:', newUrl);
+        console.debug('Opened new tab:', newUrl);
       } else {
         // Normal click - change current view and update URL
         this.view = view;
         history.replaceState(null, '', newUrl);
-        console.log('Replaced state:', newUrl);
+        console.debug('Replaced state:', newUrl);
       }
         event?.preventDefault();
     });
