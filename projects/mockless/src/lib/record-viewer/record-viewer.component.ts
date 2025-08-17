@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Record } from '../record.entity'; // adjust path if needed
 import { MockStorage } from '../mock.storage'; // adjust if using a service
+import { Action } from '../action.entity';
 
 type historyRecord = Record & {
   isMocked: boolean;
@@ -133,5 +134,30 @@ export class RecordViewerComponent implements OnInit {
 
   toggleEnabled(event: any) {
     this.storage.enableMockless(event.target.checked);
+  }
+
+  getMockableActions(): Action[] {
+    return [
+      {
+        text: '🗑️ Remove Mockable',
+        callback: (record: Record) => {
+          this.remove(record);
+        }
+      }
+    ];
+  }
+
+  getHistoryActions(record: historyRecord): Action[] {
+    return [
+      {
+        text: record.isMocked ? '👁️ View Mockable' : '💾 Add to Mockables',
+        callback: (callbackRecord) =>{
+          this.doHistoryAction({
+            ...callbackRecord,
+            isMocked: record.isMocked
+        });
+        }
+      }
+    ];
   }
 }

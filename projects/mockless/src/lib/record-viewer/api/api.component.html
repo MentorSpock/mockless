@@ -30,12 +30,11 @@
         </button>
         
         <div class="menu-dropdown" [class.show]="showMenu">
-          <button 
-            *ngIf="showActions && !isEditing" 
-            class="menu-item primary"
-            (click)="onActionClick(); toggleMenu()" 
-            [title]="actionButtonTitle">
-            {{ actionButtonText }} {{ actionButtonTitle }}
+          <button
+            *ngFor="let btn of buttons"
+            class="menu-item"
+            (click)="actionCallback(btn, record);">
+            {{ btn.text }}
           </button>
           
           <button 

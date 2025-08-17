@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
 import { Record } from '../../record.entity';
+import { Action } from '../../action.entity';
 
 @Component({
   selector: 'lib-api',
@@ -7,14 +8,11 @@ import { Record } from '../../record.entity';
   styleUrls: ['./api.component.css']
 })
 export class APIComponent implements OnInit {
-  @Input() record!: Record;
-  @Input() showActions: boolean = true;
-  @Input() actionButtonText: string = '💾';
-  @Input() actionButtonTitle: string = 'Action';
+  @Input() record!: Record;;
   @Input() showEditor: boolean = false;
   @Input() editorOnly: boolean = false;
+  @Input() buttons: Action[] = [];
 
-  @Output() actionClick = new EventEmitter<Record>();
   @Output() updateRecord = new EventEmitter<{record: Record, updatedValue: string}>();
 
   // Editable fields
@@ -38,6 +36,11 @@ export class APIComponent implements OnInit {
         response: true
       };
     }
+  }
+
+  actionCallback(action:Action, record: Record) {
+    action.callback(record);
+    this.toggleMenu();
   }
 
   initializeEditableRecord() {
@@ -68,10 +71,6 @@ export class APIComponent implements OnInit {
       }
     }
     return String(content);
-  }
-
-  onActionClick() {
-    this.actionClick.emit(this.record);
   }
 
   toggleMenu() {

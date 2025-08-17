@@ -16,11 +16,9 @@
     <lib-api 
       *ngFor="let record of history" 
       [record]="record"
-      [showActions]="true"
-      actionButtonText="{{ record.isMocked ? '👁️' : '💾' }}"
-      actionButtonTitle="{{ record.isMocked ? 'View Mockable' : 'Add to Mockables' }}"
       [showEditor]="false"
-      (actionClick)="doHistoryAction(record)">
+      [buttons]="getHistoryActions(record)"
+    >
     </lib-api>
   </div>
 
@@ -33,13 +31,14 @@
       *ngFor="let record of mockables; let i = index"
       [record]="record"
       id="mockable-{{i}}"
-      [showActions]="true"
-      actionButtonText="🗑️"
-      actionButtonTitle="Remove Mockable"
       [showEditor]="true"
-      (actionClick)="remove($event)"
+      [buttons]="getMockableActions()"
       (updateRecord)="updateMockable($event.record, $event.updatedValue)">
     </lib-api>
+  </div>
+
+  <div *ngIf="activeTab === 'api-maker'">
+    <app-api-maker></app-api-maker>
   </div>
 
   <!-- Floating Dialog for Creating New Mockable -->
@@ -52,7 +51,6 @@
       <div class="dialog-body">
         <lib-api 
           [record]="newMockableRecord"
-          [showActions]="false"
           [editorOnly]="true"
           (updateRecord)="onCreateMockableSave($event)">
         </lib-api>
