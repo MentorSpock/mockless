@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
 import { Record } from '../../record.entity';
 
 @Component({
@@ -20,6 +20,7 @@ export class APIComponent implements OnInit {
   // Editable fields
   editableRecord: any = {};
   isEditing: boolean = false;
+  showMenu: boolean = false;
   expandedSections: {[key: string]: boolean} = {
     headers: false,
     body: false,
@@ -73,9 +74,14 @@ export class APIComponent implements OnInit {
     this.actionClick.emit(this.record);
   }
 
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
+  }
+
   startEditing() {
     console.debug('Editing started for record:', this.record);
     this.isEditing = true;
+    this.showMenu = false; // Close menu when starting edit
     this.initializeEditableRecord();
   }
 
@@ -176,5 +182,16 @@ export class APIComponent implements OnInit {
 
   getObjectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    const hamburgerMenu = target.closest('.hamburger-menu');
+    
+    // Close menu if clicking outside of it
+    if (!hamburgerMenu && this.showMenu) {
+      this.showMenu = false;
+    }
   }
 }

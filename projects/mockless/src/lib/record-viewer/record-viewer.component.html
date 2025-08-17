@@ -18,7 +18,7 @@
       [record]="record"
       [showActions]="true"
       actionButtonText="{{ record.isMocked ? '👁️' : '💾' }}"
-      actionButtonTitle="Add to Mockables"
+      actionButtonTitle="{{ record.isMocked ? 'View Mockable' : 'Add to Mockables' }}"
       [showEditor]="false"
       (actionClick)="doHistoryAction(record)">
     </lib-api>

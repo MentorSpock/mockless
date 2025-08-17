@@ -15,41 +15,57 @@
         {{ getStatusIcon() }} {{ record.status }}
       </span>
       
-      <div class="action-buttons">
+      <!-- Hamburger Menu -->
+      <div class="hamburger-menu">
         <button 
-          *ngIf="showActions && !isEditing" 
-          class="action-btn primary"
-          (click)="onActionClick()" 
-          [title]="actionButtonTitle">
-          {{ actionButtonText }}
+          class="hamburger-btn" 
+          (click)="toggleMenu()"
+          [class.active]="showMenu"
+          title="Actions Menu">
+          <span class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
         </button>
         
-        <button 
-          *ngIf="showEditor && !isEditing" 
-          class="action-btn secondary"
-          (click)="startEditing()" 
-          title="Edit Record">
-          ✏️ Edit
-        </button>
-        
-        <button 
-          *ngIf="isEditing" 
-          class="action-btn success"
-          (click)="saveChanges()" 
-          title="Save Changes">
-          💾 Save
-        </button>
-        
-        <button 
-          *ngIf="isEditing && !editorOnly" 
-          class="action-btn cancel"
-          (click)="cancelEditing()" 
-          title="Cancel Editing">
-          ❌ Cancel
-        </button>
+        <div class="menu-dropdown" [class.show]="showMenu">
+          <button 
+            *ngIf="showActions && !isEditing" 
+            class="menu-item primary"
+            (click)="onActionClick(); toggleMenu()" 
+            [title]="actionButtonTitle">
+            {{ actionButtonText }} {{ actionButtonTitle }}
+          </button>
+          
+          <button 
+            *ngIf="showEditor && !isEditing" 
+            class="menu-item secondary"
+            (click)="startEditing(); toggleMenu()" 
+            title="Edit Record">
+            ✏️ Edit Record
+          </button>
+          
+          <button 
+            *ngIf="isEditing" 
+            class="menu-item success"
+            (click)="saveChanges(); toggleMenu()" 
+            title="Save Changes">
+            💾 Save Changes
+          </button>
+          
+          <button 
+            *ngIf="isEditing && !editorOnly" 
+            class="menu-item cancel"
+            (click)="cancelEditing(); toggleMenu()" 
+            title="Cancel Editing">
+            ❌ Cancel Editing
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+    </div>
+  
 
   <!-- Timestamp -->
   <div *ngIf="!editorOnly" class="timestamp-section">
