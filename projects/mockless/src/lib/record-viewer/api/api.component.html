@@ -41,7 +41,7 @@
         </button>
         
         <button 
-          *ngIf="isEditing" 
+          *ngIf="isEditing && !editorOnly" 
           class="action-btn cancel"
           (click)="cancelEditing()" 
           title="Cancel Editing">
@@ -52,8 +52,8 @@
   </div>
 
   <!-- Timestamp -->
-  <div class="timestamp-section">
-    <small class="timestamp">{{ formatTimestamp(record.timestamp) }}</small>
+  <div *ngIf="!editorOnly" class="timestamp-section">
+    <small class="timestamp">Created at {{ formatTimestamp(record.timestamp) }}</small>
   </div>
 
   <!-- Detailed Fields -->
@@ -96,15 +96,19 @@
           <span *ngIf="!isEditing" class="field-value url-text">{{ record.url }}</span>
         </div>
         
-        <div class="field-group" *ngIf="record.isError">
-          <label>
+        <div class="field-group">
+          <label 
+              *ngIf="isEditing" >
             <input 
-              *ngIf="isEditing" 
               type="checkbox" 
-              [(ngModel)]="editableRecord.isError">
-            Is Error:
+              [(ngModel)]="editableRecord.isError"
+              class="checkbox-input">
+            {{ editableRecord.isError ? 'Respond with Error' : 'Respond without Error' }}
           </label>
-          <span *ngIf="!isEditing" class="field-value">{{ record.isError ? 'Yes' : 'No' }}</span>
+          <label 
+              *ngIf="!isEditing" >
+          {{ record.isError ? 'Respond with Error' : 'Respond without Error' }}
+          </label>
         </div>
       </div>
     </div>

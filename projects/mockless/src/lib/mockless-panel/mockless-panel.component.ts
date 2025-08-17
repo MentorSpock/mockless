@@ -23,11 +23,22 @@ export class MocklessPanelComponent implements OnInit {
     }
   view: 'api-maker' | 'recorder' = 'api-maker';
 
-  setView(view: 'api-maker' | 'recorder') {
-    this.view = view;
+  setView(view: 'api-maker' | 'recorder', event: any = null) {
     this.route.queryParams.subscribe(params => {
       const queryParams = { ...params, view };
-      history.replaceState(null, '', `${location.pathname}?${new URLSearchParams(queryParams).toString()}`);
+      const newUrl = `${location.pathname}?${new URLSearchParams(queryParams).toString()}`;
+      
+      if (event?.metaKey || event?.ctrlKey) {
+        // Cmd+click or Ctrl+click - open in new tab without changing current view
+        window.open(newUrl, '_blank');
+        console.log('Opened new tab:', newUrl);
+      } else {
+        // Normal click - change current view and update URL
+        this.view = view;
+        history.replaceState(null, '', newUrl);
+        console.log('Replaced state:', newUrl);
+      }
+        event?.preventDefault();
     });
   }
 }

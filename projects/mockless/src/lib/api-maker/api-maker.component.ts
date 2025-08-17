@@ -41,8 +41,7 @@ sendRequest() {
 
   this.http.request(this.method, this.url, {
     ...options,
-    body: parsedBody,
-    observe: 'response'
+    body: parsedBody
   }).subscribe({
     next: res => this.result = res,
     error: err => {

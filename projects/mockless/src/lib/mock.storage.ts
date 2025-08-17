@@ -59,9 +59,6 @@ export class MockStorage {
     }
 
     getMockables(): Record[] {
-        if(!this.enabled) {
-            return [];
-        }
         return [...this.mockables];
     }
 

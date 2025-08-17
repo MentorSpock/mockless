@@ -1,6 +1,6 @@
 {
   "name": "@mentorspok/mockless",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "Vinayak Joshi",
   "description": "Angular library to record and mock HTTP traffic dynamically.",
   "keywords": [

@@ -71,3 +71,84 @@ textarea.json-editor {
 .editor-actions button:hover {
   background-color: #0056b3;
 }
+
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+
+  button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    cursor: pointer;
+    color: black;
+    border-radius: 4px;
+
+    &.active {
+      background: #007acc;
+      color: white;
+      border-color: #007acc;
+    }
+  }
+}
+
+/* Floating Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  margin: 20px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+.dialog-body {
+  padding: 20px;
+}
