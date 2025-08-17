@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Record } from '../record.entity';
 
 @Component({
   selector: 'app-api-maker',
@@ -8,47 +9,60 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class ApiMakerComponent {
 
-  method: string = 'GET';
-  url: string = 'https://fake-json-api.mock.beeceptor.com/users';
+  @Input() record!: Record;
+
+  method: string = '';
+  url: string = '';
   headers: { key: string, value: string }[] = [
-  { key: '', value: '' }
-];
+  ];
 
   body: string = '';
   result: any = null;
 
-  constructor(private http: HttpClient) {}
-addHeader() {
-  this.headers.push({ key: '', value: '' });
-}
+  constructor(private http: HttpClient) {
+    setTimeout(() => {
 
-removeHeader(index: number) {
-  this.headers.splice(index, 1);
-}
+      console.debug('API Maker initialized with record:', this.record);
+      if (!this.record) {
+        return;
+      }
+      this.method = this.record.method;
+      this.url = this.record.url;
+      this.headers = Object.entries(this.record.headers || {}).map(([key, value]) => ({ key, value }));
+      this.body = this.record.body;
+    }, 0);
+  }
+  addHeader() {
+    this.headers.push({ key: '', value: '' });
+  }
 
-sendRequest() {
-  const parsedHeaders = this.headers
-    .filter(h => h.key.trim() !== '')
-    .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
+  removeHeader(index: number) {
+    this.headers.splice(index, 1);
+  }
 
-  const httpHeaders = new HttpHeaders(parsedHeaders);
+  sendRequest() {
+    const parsedHeaders = this.headers
+      .filter(h => h.key.trim() !== '')
+      .reduce((acc, h) => ({ ...acc, [h.key]: h.value }), {});
 
-  const options = {
-    headers: httpHeaders
-  };
+    const httpHeaders = new HttpHeaders(parsedHeaders);
 
-  const parsedBody = this.body ? JSON.parse(this.body) : undefined;
+    const options = {
+      headers: httpHeaders
+    };
 
-  this.http.request(this.method, this.url, {
-    ...options,
-    body: parsedBody
-  }).subscribe({
-    next: res => this.result = res,
-    error: err => {
-      console.error('Request failed:', err);
-      this.result = err;
-    }
-  });
-}
+    const parsedBody = this.body ? JSON.parse(this.body) : undefined;
+
+    this.http.request(this.method, this.url, {
+      ...options,
+      body: parsedBody
+    }).subscribe({
+      next: res => this.result = res,
+      error: err => {
+        console.error('Request failed:', err);
+        this.result = err;
+      }
+    });
+  }
 
 }
