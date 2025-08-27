@@ -1,9 +1,9 @@
 <div class="toggle-buttons">
-  <button (click)="setView('recorder', $event)" [class.active]="view === 'recorder'">Record Viewer</button>
+  <button (click)="setView('recorder', $event)" [class.active]="view === 'recorder'" >Record Viewer</button>
   <button (click)="setView('api-maker', $event)" [class.active]="view === 'api-maker'">API Maker</button>
 </div>
 
 <div class="panel-container">
-  <app-api-maker *ngIf="view === 'api-maker'"></app-api-maker>
-  <lib-record-viewer *ngIf="view === 'recorder'"></lib-record-viewer>
+  <app-api-maker *ngIf="view === 'api-maker'" [record]="apiRecord"></app-api-maker>
+  <lib-record-viewer *ngIf="view === 'recorder'" (makeAPI)="onCopyToAPIClicked($event)"></lib-record-viewer>
 </div>

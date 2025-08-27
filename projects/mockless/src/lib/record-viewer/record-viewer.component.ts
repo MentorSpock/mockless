@@ -1,6 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { Record } from '../record.entity'; // adjust path if needed
 import { MockStorage } from '../mock.storage'; // adjust if using a service
+import { Action } from '../action.entity';
 
 type historyRecord = Record & {
   isMocked: boolean;
@@ -13,6 +14,7 @@ type historyRecord = Record & {
 })
 export class RecordViewerComponent implements OnInit {
   @ViewChild('mockables_view') mockables_view!: ElementRef;
+  @Output() makeAPI = new EventEmitter<Record>();
   mockables: Record[] = [];
   history: historyRecord[] = []; // Initialize with an empty record
   activeTab: string = "history";
@@ -27,7 +29,7 @@ export class RecordViewerComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  createNewMockable(){
+  createNewMockable() {
     this.newMockableRecord = this.createEmptyRecord();
     this.showCreateDialog = true;
   }
@@ -50,11 +52,11 @@ export class RecordViewerComponent implements OnInit {
     };
   }
 
-  onCreateMockableSave(event: {record: Record, updatedValue: string}) {
+  onCreateMockableSave(event: { record: Record, updatedValue: string }) {
     try {
       console.debug('Creating new mockable with data:', event);
       const updateEntity = JSON.parse(event.updatedValue);
-      const newMockable = {...event.record, ...updateEntity, timestamp: Date.now()};
+      const newMockable = { ...event.record, ...updateEntity, timestamp: Date.now() };
       this.storage.storeMockable(newMockable);
       this.showCreateDialog = false;
     } catch (e) {
@@ -65,7 +67,7 @@ export class RecordViewerComponent implements OnInit {
 
   closeCreateDialog() {
     this.showCreateDialog = false;
-  }  isEnabled(){
+  } isEnabled() {
     return this.storage.isEnabled();
   }
 
@@ -76,15 +78,15 @@ export class RecordViewerComponent implements OnInit {
     this.reload();
   }
 
-  reload(){
-      console.debug('Reloading records...');
-      this.mockables = this.storage.getMockables();
-      this.updateHistory(this.storage.getHistory());
-      console.debug('Mockables:', this.mockables);
-      console.debug('History:', this.history);
+  reload() {
+    console.debug('Reloading records...');
+    this.mockables = this.storage.getMockables();
+    this.updateHistory(this.storage.getHistory());
+    console.debug('Mockables:', this.mockables);
+    console.debug('History:', this.history);
   }
 
-  updateHistory(history: Record[]){
+  updateHistory(history: Record[]) {
     this.history = history.map(record => ({ ...record, isMocked: this.isMocked(record) }));
   }
 
@@ -97,7 +99,7 @@ export class RecordViewerComponent implements OnInit {
     // No need to reload explicitly since we’re using a getter
   }
   doHistoryAction(entry: historyRecord) {
-    if(!entry.isMocked) {
+    if (!entry.isMocked) {
       this.storage.storeMockable(entry);
     }
     this.setView('mockables');
@@ -121,11 +123,11 @@ export class RecordViewerComponent implements OnInit {
   }
 
   updateMockable(entry: Record, update: string) {
-    try{
-    const updateEntity = JSON.parse(update);
-    const updatable = {...entry, ...updateEntity};
-    this.storage.storeMockable(updatable);
-    }catch (e) {
+    try {
+      const updateEntity = JSON.parse(update);
+      const updatable = { ...entry, ...updateEntity };
+      this.storage.storeMockable(updatable);
+    } catch (e) {
       console.error('Failed to update mockable:', e);
       alert('Failed to update mockable: ' + e);
     }
@@ -133,5 +135,47 @@ export class RecordViewerComponent implements OnInit {
 
   toggleEnabled(event: any) {
     this.storage.enableMockless(event.target.checked);
+  }
+
+  takeToAPIMaker(record: Record) {
+    this.makeAPI.emit(record);
+  }
+
+  getMockableActions(): Action[] {
+    return [
+      {
+        text: '🗑️ Remove Mockable',
+        callback: (record: Record) => {
+          this.remove(record);
+        }
+      },
+      {
+        text: 'Take to API',
+        callback: (record: Record) => {
+          console.debug('Taking to API:', record);
+          this.takeToAPIMaker(record);
+        }
+      }
+    ];
+  }
+
+  getHistoryActions(record: historyRecord): Action[] {
+    return [
+      {
+        text: record.isMocked ? '👁️ View Mockable' : '💾 Add to Mockables',
+        callback: (callbackRecord) => {
+          this.doHistoryAction({
+            ...callbackRecord,
+            isMocked: record.isMocked
+          });
+        }
+      },
+      {
+        text: 'Take to API',
+        callback: (callbackRecord: Record) => {
+          this.takeToAPIMaker(callbackRecord);
+        }
+      }
+    ];
   }
 }

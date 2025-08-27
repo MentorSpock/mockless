@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
 import { Record } from '../../record.entity';
+import { Action } from '../../action.entity';
 
 @Component({
   selector: 'lib-api',
@@ -7,19 +8,17 @@ import { Record } from '../../record.entity';
   styleUrls: ['./api.component.css']
 })
 export class APIComponent implements OnInit {
-  @Input() record!: Record;
-  @Input() showActions: boolean = true;
-  @Input() actionButtonText: string = '💾';
-  @Input() actionButtonTitle: string = 'Action';
+  @Input() record!: Record;;
   @Input() showEditor: boolean = false;
   @Input() editorOnly: boolean = false;
+  @Input() buttons: Action[] = [];
 
-  @Output() actionClick = new EventEmitter<Record>();
   @Output() updateRecord = new EventEmitter<{record: Record, updatedValue: string}>();
 
   // Editable fields
   editableRecord: any = {};
   isEditing: boolean = false;
+  showMenu: boolean = false;
   expandedSections: {[key: string]: boolean} = {
     headers: false,
     body: false,
@@ -37,6 +36,11 @@ export class APIComponent implements OnInit {
         response: true
       };
     }
+  }
+
+  actionCallback(action:Action, record: Record) {
+    action.callback(record);
+    this.toggleMenu();
   }
 
   initializeEditableRecord() {
@@ -69,13 +73,14 @@ export class APIComponent implements OnInit {
     return String(content);
   }
 
-  onActionClick() {
-    this.actionClick.emit(this.record);
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
   }
 
   startEditing() {
     console.debug('Editing started for record:', this.record);
     this.isEditing = true;
+    this.showMenu = false; // Close menu when starting edit
     this.initializeEditableRecord();
   }
 
@@ -176,5 +181,16 @@ export class APIComponent implements OnInit {
 
   getObjectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    const hamburgerMenu = target.closest('.hamburger-menu');
+    
+    // Close menu if clicking outside of it
+    if (!hamburgerMenu && this.showMenu) {
+      this.showMenu = false;
+    }
   }
 }
